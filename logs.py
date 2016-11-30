@@ -3,7 +3,10 @@ import mxml
 import os
 import random
 
-loan_log_base_dir = r'loan_logs'
+individual_logs_dir = r'./individual_logs'
+mixed_logs_dir = r'./mixed_logs'
+
+loan_log_dir = os.path.join(individual_logs_dir, 'loan')
 
 def is_trace_equal(t1, t2):
     """
@@ -17,16 +20,16 @@ def is_trace_equal(t1, t2):
     return True
 
 
-def extract_loan_logs(name):
+def extract_loan_logs(name, dataset_path):
     """
-    从已有的混合的日志中提取出每个模型独立的日志
+    从 QUT 2016 - Fast and Accurate Business Process Drift Detection
+    的数据集中提取出每个模型独立的日志
     """
     if name == 'original':
-        filepath = os.path.join(loan_log_base_dir, r'cb\cb5k.mxml')
+        filepath = os.path.join(dataset_path, r'cb\cb5k.mxml')
         begin, end = 0, 500
-
     else:
-        filepath = os.path.join(loan_log_base_dir, r'%s\%s5k.mxml' % (name, name))
+        filepath = os.path.join(dataset_path, r'%s\%s5k.mxml' % (name, name))
         begin, end = 500, 1000
 
     log = mxml.parse(filepath)
@@ -34,7 +37,7 @@ def extract_loan_logs(name):
     for i in xrange(begin, end):
         all_traces.add(','.join(log['traces'][i]))
 
-    dest_file = os.path.join(loan_log_base_dir, 'individual_logs\%s.txt' % name)
+    dest_file = os.path.join(loan_log_dir, '%s.txt' % name)
     with open(dest_file, 'w') as f:
         for trace in all_traces:
             f.write(trace)
@@ -62,23 +65,19 @@ def mix(logs, config):
     return mixed_traces
 
 
-
-def generate_mixed_logs():
-    models = ['original',
-              'cb', 'cd', 'cf', 'cm', 'cp', 'fr',
-              'lp', 'pl', 'pm', 're', 'rp', 'sw',
-              'IOR', 'IRO', 'ORI','OIR','RIO','ROI']
+def generate_mixed_logs(dataset, model_count=5, trace_range=(100, 300), trace_step=50, log_count=1):
+    models = []
     logs = {}
-    for model in models:
+    for filename in os.listdir(os.path.join(individual_logs_dir, dataset)):
+        model, _ = os.path.splitext(filename)
+        models.append(model)
         logs[model] = []
-        for line in open(os.path.join(loan_log_base_dir, 'individual_logs\%s.txt' % model), 'r'):
+        for line in open(os.path.join(individual_logs_dir, dataset, filename), 'r'):
             line = line.strip()
             if line:
                 logs[model].append(line.split(','))
 
-    log_count = 1
-    model_count = 6
-    log_len_choices = range(300, 3000, 600)
+    log_len_choices = range(trace_range[0], trace_range[1], trace_step)
 
     configs = [[] for i in xrange(log_count)]
     for i in xrange(log_count):
@@ -93,25 +92,16 @@ def generate_mixed_logs():
     for config in configs:
         mixed_traces = mix(logs, config)
         filename = ''
-        sum = 0
+        trace_sum = 0
         for item in config:
-            filename += "%d.%s_" % (sum, item['name'])
-            sum += item['length']
+            filename += "%d.%s_" % (trace_sum, item['name'])
+            trace_sum += item['length']
         filename += '.mxml'
-        filepath = os.path.join(loan_log_base_dir, 'mixed_logs', filename)
+        filepath = os.path.join(mixed_logs_dir, filename)
         mxml.write(mixed_traces, filepath)
 
 
 
 if __name__ == '__main__':
-    # models = ['original',
-    #           'cb', 'cd', 'cf', 'cm', 'cp', 'fr',
-    #           'lp', 'pl', 'pm', 're', 'rp', 'sw',
-    #           'IOR', 'IRO', 'ORI','OIR','RIO','ROI']
-    # for model in models:
-    #     extract(model)
-
-    # for line in open('test.txt'):
-    #     print line,
     generate_mixed_logs()
 
