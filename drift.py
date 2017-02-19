@@ -71,7 +71,7 @@ class DriftDetector:
 
         # merge partitions
         print 'merging'
-        result = merge.merge_2(all_intervals, (0, len(self.traces)), self.min_len)
+        result = merge.merge_by_dbscan(all_intervals, (0, len(self.traces)), self.min_len, self.min_len * 0.05, 2)
         return result
 
 

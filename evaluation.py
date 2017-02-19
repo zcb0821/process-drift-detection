@@ -27,10 +27,12 @@ def evaluate_by_label(label, result, thelta):
     TP_error = float(sum([t[-1] for t in TP])) / len(TP)
     return recall, precision, f1_score, TP_error
 
+
 def _test_evaluate_by_label():
     label = [0, 111, 258, 385, 524, 659, 1525, 1639, 1756, 1995, 2118]
     result = [0, 111, 259, 383, 524, 659, 1525, 1639, 1756, 1856, 1993, 2118]
     print evaluate_by_label(label, result, 10)
+
 
 if __name__ == '__main__':
     _test_evaluate_by_label()

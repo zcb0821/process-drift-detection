@@ -1,6 +1,8 @@
 from drift import DriftDetector
 import log
 import birelations
+import mxml
+import os
 
 
 def find_failure_cases(dataset, r_types, times=500, console_output=False):
@@ -91,8 +93,18 @@ def random_test(dataset, r_types, model_count = 6, times=100, console_output=Fal
     return failures
 
 
+def generate_mixed_log(dataset, model_count=10, min_n=100, times=1):
+    individual_logs = log.read_individual_log(dataset)
+    for i in xrange(times):
+        traces, config = log.random_mix(individual_logs, num=model_count, min_n=min_n)
+        filename = log.name_of_config(config) + '.mxml'
+        filepath = os.path.join(log.mixed_logs_dir, dataset, filename)
+        mxml.write(traces, filepath)
+
+
+
 if __name__ == '__main__':
-    # loan_individual_logs = read_models('group-A')
+    # loan_individual_logs = read_models('simple')
     # for i in xrange(100):
     #     print i, '.---------------------------------------------'
     #     traces, label, config = random_mix(loan_individual_logs, model_num=2, trace_range=(150, 301), trace_step=50)
@@ -116,6 +128,7 @@ if __name__ == '__main__':
             print '%s - [%s]' % (key, ', '.join(result[key]))
 
     # test_two_models('my-loan', 'model_rp', 'model_lp', [(birelations.direct_causal, 'all')])
-    # s = find_failure_cases('group-A', [(birelations.direct_causal, 'all'), (birelations.co_exist, 'first')], console_output=True, times=500)
-    s = random_test('my-loan', [(birelations.direct_causal, 'all'), (birelations.co_exist, 'first')], model_count=2,  console_output=True, times=20)
-    print_bi_tuple_set(s)
+    # s = find_failure_cases('simple', [(birelations.direct_causal, 'all'), (birelations.co_exist, 'first')], console_output=True, times=500)
+    s = random_test('my-loan', [(birelations.direct_causal, 'all'), (birelations.co_exist, 'first')], model_count=10,  console_output=True, times=20)
+    # print_bi_tuple_set(s)
+    # generate_mixed_log('simple', times=10)
