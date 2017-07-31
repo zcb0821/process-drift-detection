@@ -81,7 +81,7 @@ def read_individual_log(dataset):
     return logs
 
 
-def random_mix(logs, num, min_n):
+def random_mix(logs, num, min_n, max_n=None):
     config = []
 
     models = logs.keys()
@@ -93,7 +93,10 @@ def random_mix(logs, num, min_n):
             if model != last_model:
                 last_model = model
                 break
-        length = random.randrange(max(min_n, len(logs[model])), int(max(min_n, len(logs[model])) * 1.5))
+        if max_n is None:
+            length = random.randrange(max(min_n, len(logs[model])), int(max(min_n, len(logs[model])) * 1.5))
+        else:
+            length = random.randrange(min_n, max_n)
         config.append({
             'name': model,
             'length': length
@@ -114,7 +117,10 @@ def name_of_config(config):
     name = ''
     trace_sum = 0
     for item in config:
-        name += "[%d %s]-" % (trace_sum, item['name'])
+        s = item['name'].lstrip('model_')
+        if not s:
+            s = 'origin'
+        name += "[%d %s]-" % (trace_sum, s)
         trace_sum += item['length']
     name += '[%d end]' % trace_sum
     return name

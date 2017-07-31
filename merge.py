@@ -170,7 +170,7 @@ def dbscan_1d(array, radius, min_pts):
 
 
 def merge_by_dbscan(intervals, total_range, min_len, radius, min_pts, alpha=0.9):
-    print intervals
+    # print intervals
     array = list()
     for x, y in intervals:
         array.append(x)
@@ -178,11 +178,11 @@ def merge_by_dbscan(intervals, total_range, min_len, radius, min_pts, alpha=0.9)
 
     # 对所有分割点进行密度聚类
     clusters = dbscan_1d(array, radius, min_pts)
-    print clusters
+    # print clusters
 
     # 按照簇的规模从大到小对簇进行排序
     clusters.sort(key=lambda x: -len(x))
-    print clusters
+    # print clusters
 
     # 初始化分割结果为整个区间
     partitioned = [total_range[0], total_range[-1]]

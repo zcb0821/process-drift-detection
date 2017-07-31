@@ -7,7 +7,7 @@ NULL = -1
 
 def direct_causal(trace):
     relations = {}
-    for i in xrange(len(trace)-1):
+    for i in xrange(len(trace) - 1):
         name = '%s,%s' % (trace[i], trace[i + 1])
         relations[name] = ((trace[i], trace[i + 1]), HOLD)
     return relations.values()
@@ -15,12 +15,12 @@ def direct_causal(trace):
 
 def weak_causal(trace):
     relations = {}
-    for i in xrange(len(trace)-1):
-        for j in xrange(i+1, len(trace)):
+    for i in xrange(len(trace) - 1):
+        for j in xrange(i + 1, len(trace)):
             name = '%s,%s' % (trace[i], trace[j])
             relations[name] = ((trace[i], trace[j]), HOLD)
     return relations.values()
-    
+
 
 def co_exist(trace):
     relations = {}
@@ -77,5 +77,6 @@ class BIRTableGenerator:
         self.t_flags = {}
         for index, trace in enumerate(self.traces):
             for transition in trace:
-                flags = self.t_flags.setdefault(transition, np.full(len(self.traces), NULL, np.int8))
+                flags = self.t_flags.setdefault(
+                    transition, np.full(len(self.traces), NULL, np.int8))
                 flags[index] = NOT_HOLD
